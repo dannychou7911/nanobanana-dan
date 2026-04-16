@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nano Banana 指令參考 · Commands Reference</title>
+  <meta name="description" content="Nano Banana Gemini CLI extension 所有 slash command 的參數速查表。" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'ui-sans-serif', 'system-ui'],
+            sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            mono: ['Fira Code', 'ui-monospace', 'SFMono-Regular'],
+          },
+          colors: {
+            cream: '#FEFCE8',
+            banana: {
+              50:  '#FEFCE8',
+              100: '#FEF9C3',
+              200: '#FEF08A',
+              300: '#FDE047',
+              400: '#FACC15',
+              500: '#EAB308',
+              600: '#CA8A04',
+              700: '#A16207',
+            },
+            cocoa: {
+              100: '#FBE8D3',
+              600: '#9A3412',
+              700: '#7C2D12',
+              800: '#5B1D0A',
+              900: '#3B1306',
+            },
+            grape: {
+              500: '#A855F7',
+              600: '#9333EA',
+              700: '#7C3AED',
+            },
+          },
+          boxShadow: {
+            soft: '0 1px 2px rgba(124,45,18,.06), 0 6px 20px -8px rgba(124,45,18,.18)',
+            pop:  '0 10px 30px -10px rgba(124,45,18,.35), 0 4px 8px -2px rgba(124,45,18,.15)',
+          },
+          borderRadius: {
+            '4xl': '2rem',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .font-mono { font-family: 'Fira Code', monospace; }
+
+    /* Banana dot grid background */
+    .bg-dots {
+      background-image: radial-gradient(rgba(124,45,18,.08) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    .bg-paper {
+      background-image:
+        radial-gradient(rgba(124,45,18,.05) 1px, transparent 1px),
+        linear-gradient(180deg, #FEFCE8 0%, #FEF9C3 100%);
+      background-size: 22px 22px, 100% 100%;
+    }
+
+    /* Soft card lift */
+    .card-lift { transition: transform .25s ease, box-shadow .25s ease; }
+    .card-lift:hover { transform: translateY(-4px); }
+
+    /* Param pill */
+    .pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .2rem .55rem;
+      border: 1px solid rgba(124,45,18,.15);
+      border-radius: 999px;
+      font-family: 'Fira Code', monospace;
+      font-size: .75rem;
+      background: #fff;
+      color: #5B1D0A;
+      white-space: nowrap;
+    }
+    .pill-required {
+      background: #FEF08A;
+      border-color: #EAB308;
+      color: #5B1D0A;
+    }
+    .pill-grape {
+      background: #F5F3FF;
+      border-color: #DDD6FE;
+      color: #6D28D9;
+    }
+
+    /* Code block */
+    pre.codeblock {
+      background: #1F1208;
+      color: #FDE68A;
+      border-radius: 1rem;
+      padding: 1rem 1.15rem;
+      font-family: 'Fira Code', monospace;
+      font-size: .82rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      box-shadow: inset 0 0 0 1px rgba(253,224,71,.1);
+    }
+    pre.codeblock .cmd { color: #FDE047; }
+    pre.codeblock .arg { color: #FCA5A5; }
+    pre.codeblock .flag { color: #C4B5FD; }
+    pre.codeblock .str { color: #FDE68A; }
+
+    /* Custom scrollbar for codeblock — banana brand */
+    pre.codeblock {
+      scrollbar-width: thin;                      /* Firefox */
+      scrollbar-color: #CA8A04 transparent;        /* Firefox: thumb / track */
+    }
+    pre.codeblock::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+    pre.codeblock::-webkit-scrollbar-track {
+      background: rgba(253, 224, 71, 0.06);
+      border-radius: 999px;
+      margin: 0 4px;
+    }
+    pre.codeblock::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #CA8A04 0%, #EAB308 100%);
+      border-radius: 999px;
+      border: 1px solid rgba(253, 224, 71, 0.15);
+    }
+    pre.codeblock::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(90deg, #EAB308 0%, #FACC15 100%);
+    }
+    pre.codeblock::-webkit-scrollbar-thumb:active {
+      background: #FDE047;
+    }
+    pre.codeblock::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    /* Copy button */
+    .copy-btn {
+      transition: all .18s ease;
+    }
+    .copy-btn:hover { background: #FDE047; color: #3B1306; }
+    .copy-btn.copied { background: #86EFAC; color: #14532D; }
+
+    /* Banana gradient text */
+    .text-banana-gradient {
+      background: linear-gradient(90deg, #A16207 0%, #CA8A04 40%, #EAB308 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+
+    /* Soft banana blob */
+    .blob {
+      position: absolute; border-radius: 50%; filter: blur(48px); opacity: .55;
+      pointer-events: none;
+    }
+
+    /* Floating banana shape */
+    @keyframes float-slow {
+      0%,100% { transform: translateY(0) rotate(-8deg); }
+      50%     { transform: translateY(-14px) rotate(-4deg); }
+    }
+    .float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+    /* Focus ring */
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid #7C3AED;
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .float-slow, .card-lift, .copy-btn { animation: none !important; transition: none !important; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* Table */
+    table.param-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    table.param-table th, table.param-table td {
+      text-align: left; padding: .65rem .9rem; font-size: .88rem;
+      border-bottom: 1px dashed rgba(124,45,18,.15);
+      vertical-align: top;
+    }
+    table.param-table thead th {
+      background: #FEF9C3; color: #5B1D0A;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+      border-bottom: 2px solid #FDE047;
+    }
+    table.param-table tr:last-child td { border-bottom: none; }
+    table.param-table tr:hover td { background: #FEFCE8; }
+
+    /* Scroll anchor offset handled by scroll-padding-top */
+  </style>
+</head>
+
+<body class="bg-cream text-cocoa-800 min-h-screen selection:bg-banana-300 selection:text-cocoa-900">
+
+  <!-- Floating Navbar -->
+  <header class="fixed top-4 left-4 right-4 z-50">
+    <nav class="max-w-5xl mx-auto bg-white/80 backdrop-blur-md border border-cocoa-700/10 rounded-2xl shadow-soft px-4 sm:px-6 py-3 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2.5 group cursor-pointer">
+        <span class="relative grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-banana-300 to-banana-400 shadow-inner shadow-banana-500/30">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-cocoa-800" fill="currentColor" aria-hidden="true">
+            <path d="M5 4c-.6 0-1 .5-.9 1.1.8 7 5.4 12.6 12.5 13.8 1.3.2 2.5-.7 2.7-2 .1-.9-.4-1.8-1.3-2.1-5.6-1.8-9.3-5.8-10.4-10.4C7.4 4.5 6.9 4 6.3 4H5z"/>
+          </svg>
+        </span>
+        <div class="leading-tight">
+          <div class="font-display font-semibold text-cocoa-900">Nano Banana</div>
+          <div class="text-[11px] font-medium text-cocoa-600">Commands Reference</div>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-1 text-sm font-medium text-cocoa-700">
+        <a href="#generate" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Generate</a>
+        <a href="#icon" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Icon</a>
+        <a href="#pattern" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Pattern</a>
+        <a href="#story" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Story</a>
+        <a href="#diagram" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Diagram</a>
+        <a href="#edit-restore" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Edit</a>
+        <a href="#nanobanana" class="px-3 py-1.5 rounded-lg hover:bg-banana-200 cursor-pointer transition-colors">Auto</a>
+      </div>
+
+      <a href="#common" class="inline-flex items-center gap-1.5 bg-cocoa-800 text-banana-100 hover:bg-cocoa-900 text-sm font-semibold px-3.5 py-2 rounded-xl cursor-pointer transition-colors">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+          通用設定
+      </a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="top" class="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
+    <!-- Decorative blobs -->
+    <div class="blob bg-banana-300 w-[420px] h-[420px] top-[-120px] left-[-120px]"></div>
+    <div class="blob bg-grape-500/30 w-[360px] h-[360px] top-10 right-[-140px]"></div>
+    <div class="absolute inset-0 bg-paper -z-10"></div>
+
+    <div class="relative max-w-5xl mx-auto px-5 sm:px-8">
+      <div class="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,.85fr)] gap-10 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 bg-white border border-cocoa-700/10 text-cocoa-700 text-xs font-mono font-medium px-3 py-1.5 rounded-full shadow-soft">
+            <span class="w-1.5 h-1.5 rounded-full bg-banana-400 animate-pulse"></span>
+            gemini-3.1-flash-image-preview
+          </span>
+
+          <h1 class="mt-5 font-display font-bold text-[44px] sm:text-6xl lg:text-7xl leading-[1.05] text-cocoa-900">
+            用一根香蕉 <br class="hidden sm:block"/>
+            <span class="text-banana-gradient">生成所有圖像</span>
+          </h1>
+
+          <p class="mt-5 text-lg text-cocoa-700 max-w-xl leading-relaxed">
+            Nano Banana Gemini CLI extension 的所有 <span class="font-mono text-cocoa-900 font-semibold">slash command</span> 參數速查表。
+            從文字生圖、圖示、紋理、故事序列到技術圖表，一頁全收錄。
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href="#commands" class="inline-flex items-center gap-2 bg-cocoa-800 hover:bg-cocoa-900 text-banana-100 font-semibold px-5 py-3 rounded-2xl shadow-pop cursor-pointer transition-colors">
+              瀏覽所有指令
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#nanobanana" class="inline-flex items-center gap-2 bg-white hover:bg-banana-200 border border-cocoa-700/15 text-cocoa-800 font-semibold px-5 py-3 rounded-2xl shadow-soft cursor-pointer transition-colors">
+              <svg class="w-4 h-4 text-grape-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.6L20 9l-4.5 3.9 1.4 5.6L12 15.8 7.1 18.5l1.4-5.6L4 9l5.6-1.4z"/></svg>
+              試試自然語言模式
+            </a>
+          </div>
+
+          <dl class="mt-10 grid grid-cols-3 max-w-md gap-4">
+            <div class="bg-white/70 backdrop-blur rounded-2xl p-4 border border-cocoa-700/10">
+              <dt class="text-xs text-cocoa-600 font-medium">Slash Commands</dt>
+              <dd class="font-display font-bold text-2xl text-cocoa-900">8</dd>
+            </div>
+            <div class="bg-white/70 backdrop-blur rounded-2xl p-4 border border-cocoa-700/10">
+              <dt class="text-xs text-cocoa-600 font-medium">MCP Tools</dt>
+              <dd class="font-display font-bold text-2xl text-cocoa-900">7</dd>
+            </div>
+            <div class="bg-white/70 backdrop-blur rounded-2xl p-4 border border-cocoa-700/10">
+              <dt class="text-xs text-cocoa-600 font-medium">樣式選項</dt>
+              <dd class="font-display font-bold text-2xl text-cocoa-900">40+</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Hero illustration: banana card stack -->
+        <div class="relative hidden lg:block">
+          <div class="relative w-full aspect-[4/4.2]">
+            <!-- Large banana -->
+            <div class="absolute inset-0 grid place-items-center">
+              <div class="float-slow relative w-[360px] h-[360px] rounded-[48%] bg-gradient-to-br from-banana-300 via-banana-400 to-banana-500 shadow-pop grid place-items-center rotate-[-10deg]">
+                <svg viewBox="0 0 160 160" class="w-44 h-44 text-cocoa-900/90" fill="currentColor" aria-hidden="true">
+                  <path d="M30 20c-4 0-6 4-5 8 8 52 36 82 92 92 5 1 10-3 10-8 0-4-2-7-6-8-44-10-70-32-78-72-1-5-5-12-13-12h0z" fill="#5B1D0A"/>
+                  <path d="M36 26c9 40 34 62 72 70-4-38-28-60-68-72l-4 2z" fill="#FEF9C3"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Floating mini cards -->
+            <div class="absolute top-4 right-2 w-48 rotate-6 bg-white rounded-2xl shadow-pop p-3 border border-cocoa-700/10">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                <span class="w-2 h-2 rounded-full bg-banana-400"></span>
+                <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                <span class="ml-auto font-mono text-[10px] text-cocoa-600">prompt</span>
+              </div>
+              <div class="mt-2 font-mono text-[11px] leading-relaxed">
+                <div class="text-cocoa-600">$ <span class="text-cocoa-900">/generate</span></div>
+                <div class="text-grape-700">"a wise banana monk"</div>
+                <div class="text-banana-700">--count=3 --preview</div>
+              </div>
+            </div>
+
+            <div class="absolute bottom-6 -left-2 w-56 -rotate-3 bg-white rounded-2xl shadow-pop p-3 border border-cocoa-700/10">
+              <div class="flex items-center justify-between">
+                <span class="font-display text-xs font-semibold text-cocoa-800">/pattern</span>
+                <span class="pill">seamless</span>
+              </div>
+              <div class="mt-2 grid grid-cols-4 gap-1">
+                <div class="aspect-square rounded bg-banana-200"></div>
+                <div class="aspect-square rounded bg-banana-300"></div>
+                <div class="aspect-square rounded bg-banana-400"></div>
+                <div class="aspect-square rounded bg-banana-500"></div>
+                <div class="aspect-square rounded bg-banana-300"></div>
+                <div class="aspect-square rounded bg-banana-400"></div>
+                <div class="aspect-square rounded bg-banana-500"></div>
+                <div class="aspect-square rounded bg-cocoa-600"></div>
+              </div>
+            </div>
+
+            <div class="absolute top-1/2 -right-6 w-40 rotate-[14deg] bg-cocoa-800 text-banana-100 rounded-2xl shadow-pop p-3 border border-banana-400/20">
+              <div class="font-display text-xs font-semibold text-banana-300">/diagram</div>
+              <svg class="mt-2 w-full h-16" viewBox="0 0 120 60" aria-hidden="true">
+                <rect x="4"  y="22" width="22" height="16" rx="3" fill="#FDE047"/>
+                <rect x="50" y="10" width="22" height="16" rx="3" fill="#A78BFA"/>
+                <rect x="50" y="34" width="22" height="16" rx="3" fill="#FACC15"/>
+                <rect x="96" y="22" width="22" height="16" rx="3" fill="#FDBA74"/>
+                <path d="M26 30 L50 18 M26 30 L50 42 M72 18 L96 30 M72 42 L96 30" stroke="#FEF08A" stroke-width="1.4" fill="none"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Commands overview grid -->
+  <section id="commands" class="relative py-16 sm:py-20">
+    <div class="max-w-5xl mx-auto px-5 sm:px-8">
+      <div class="flex items-end justify-between gap-4 flex-wrap mb-10">
+        <div>
+          <span class="font-mono text-xs tracking-wider text-cocoa-600 uppercase">// Commands</span>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-cocoa-900 mt-2">八種指令 · 一鍵上手</h2>
+          <p class="text-cocoa-700 mt-2 max-w-2xl">點選任一卡片查看詳細參數、預設值與完整範例。所有指令皆支援 <code class="font-mono text-sm text-cocoa-900 bg-banana-200 px-1.5 py-0.5 rounded">--preview</code> 自動開啟預覽。</p>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <a href="#generate" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-banana-200 text-cocoa-800 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15V6a2 2 0 0 0-2-2h-9"/><path d="M3 9v9a2 2 0 0 0 2 2h9"/><path d="m21 15-4.5-4.5L9 18"/><circle cx="8" cy="8" r="2"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/generate</h3>
+          <p class="text-sm text-cocoa-700 mt-1">文字生圖，支援風格與變化</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">generate_image →</span>
+        </a>
+        <!-- Card 2 -->
+        <a href="#icon" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-grape-500/15 text-grape-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/icon</h3>
+          <p class="text-sm text-cocoa-700 mt-1">App icon、favicon、UI 元件</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">generate_icon →</span>
+        </a>
+        <!-- Card 3 -->
+        <a href="#pattern" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-pink-100 text-pink-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/pattern</h3>
+          <p class="text-sm text-cocoa-700 mt-1">無縫重複圖案 · 紋理背景</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">generate_pattern →</span>
+        </a>
+        <!-- Card 4 -->
+        <a href="#story" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/story</h3>
+          <p class="text-sm text-cocoa-700 mt-1">連續圖像敘事 · 流程分鏡</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">generate_story →</span>
+        </a>
+        <!-- Card 5 -->
+        <a href="#diagram" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M14 21h7"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/diagram</h3>
+          <p class="text-sm text-cocoa-700 mt-1">流程圖、架構圖、資料庫圖</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">generate_diagram →</span>
+        </a>
+        <!-- Card 6 -->
+        <a href="#edit-restore" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/edit</h3>
+          <p class="text-sm text-cocoa-700 mt-1">依指示編輯既有圖像</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">edit_image →</span>
+        </a>
+        <!-- Card 7 -->
+        <a href="#edit-restore" class="card-lift group bg-white rounded-3xl p-5 border border-cocoa-700/10 shadow-soft hover:shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/restore</h3>
+          <p class="text-sm text-cocoa-700 mt-1">修復老照片、去刮痕、補色</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-600 group-hover:text-grape-700 transition-colors">restore_image →</span>
+        </a>
+        <!-- Card 8 -->
+        <a href="#nanobanana" class="card-lift group bg-gradient-to-br from-banana-300 to-banana-400 rounded-3xl p-5 border border-banana-500/40 shadow-pop cursor-pointer">
+          <div class="w-11 h-11 rounded-2xl bg-cocoa-800 text-banana-200 grid place-items-center">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.6L20 9l-4.5 3.9 1.4 5.6L12 15.8 7.1 18.5l1.4-5.6L4 9l5.6-1.4z"/></svg>
+          </div>
+          <h3 class="mt-4 font-display font-semibold text-lg text-cocoa-900">/nanobanana</h3>
+          <p class="text-sm text-cocoa-800 mt-1">自然語言 · 自動路由最佳工具</p>
+          <span class="mt-3 inline-block font-mono text-xs text-cocoa-800 font-semibold">AI routing →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== COMMAND DETAIL SECTIONS ====== -->
+  <main class="relative pb-24">
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 space-y-20">
+
+      <!-- /generate -->
+      <article id="generate" class="scroll-mt-24">
+        <header class="flex items-start gap-4 mb-6">
+          <div class="w-14 h-14 shrink-0 rounded-2xl bg-banana-300 grid place-items-center shadow-soft">
+            <svg class="w-7 h-7 text-cocoa-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2h-9"/><path d="M3 9v9a2 2 0 0 0 2 2h9"/><path d="m21 15-4.5-4.5L9 18"/><circle cx="8" cy="8" r="2"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-cocoa-900">/generate</h2>
+              <span class="pill pill-grape">generate_image</span>
+            </div>
+            <p class="text-cocoa-700 mt-1">從文字提示生成單張或多張圖像，支援風格與變化控制。</p>
+          </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Params -->
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-cocoa-700/10 shadow-soft min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-cocoa-900">必填參數</h3>
+              <span class="pill pill-required">Required</span>
+            </div>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="pill font-mono">prompt</span>
+                <span class="text-cocoa-700">引號字串 · 圖像描述，如 <code class="font-mono text-cocoa-900">"a watercolor painting of a fox"</code></span>
+              </li>
+            </ul>
+
+            <h3 class="font-display font-semibold text-cocoa-900 mt-6 mb-3">選填參數</h3>
+            <div class="overflow-x-auto -mx-2">
+              <table class="param-table">
+                <thead><tr><th>選項</th><th>類型</th><th>預設</th><th>可選值</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="pill">--count=N</span></td><td>1–8</td><td><code class="font-mono">1</code></td><td>生成張數</td></tr>
+                  <tr><td><span class="pill">--styles</span></td><td>逗號清單</td><td>—</td><td><span class="text-xs text-cocoa-600">photorealistic, watercolor, oil-painting, sketch, pixel-art, anime, vintage, modern, abstract, minimalist</span></td></tr>
+                  <tr><td><span class="pill">--variations</span></td><td>逗號清單</td><td>—</td><td><span class="text-xs text-cocoa-600">lighting, angle, color-palette, composition, mood, season, time-of-day</span></td></tr>
+                  <tr><td><span class="pill">--format</span></td><td>選項</td><td><code class="font-mono">separate</code></td><td>grid / separate</td></tr>
+                  <tr><td><span class="pill">--seed=123</span></td><td>整數</td><td>—</td><td>可重現種子</td></tr>
+                  <tr><td><span class="pill">--preview</span></td><td>旗標</td><td>—</td><td>自動開啟預覽</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Examples -->
+          <div class="space-y-4 min-w-0">
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/generate</span> <span class="str">"sunset over mountains"</span> <span class="flag">--count=3 --preview</span>
+<span class="cmd">/generate</span> <span class="str">"friendly robot"</span> <span class="flag">--styles=</span><span class="str">"anime,minimalist"</span> <span class="flag">--variations=</span><span class="str">"color-palette"</span>
+<span class="cmd">/generate</span> <span class="str">"mountain landscape"</span> <span class="flag">--styles=</span><span class="str">"watercolor,oil-painting"</span> <span class="flag">--count=4 --format=grid</span></pre>
+            </div>
+
+            <div class="bg-banana-100 border border-banana-300 rounded-2xl p-4 text-sm text-cocoa-800">
+              <div class="flex gap-2 items-start">
+                <svg class="w-5 h-5 text-banana-700 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                <p><strong class="font-semibold">Tip：</strong>混用 <code class="font-mono">--styles</code> 與 <code class="font-mono">--variations</code> 可以快速產生同主題的設計風格比較組。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- /icon -->
+      <article id="icon" class="scroll-mt-24">
+        <header class="flex items-start gap-4 mb-6">
+          <div class="w-14 h-14 shrink-0 rounded-2xl bg-grape-500/15 grid place-items-center shadow-soft">
+            <svg class="w-7 h-7 text-grape-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-cocoa-900">/icon</h2>
+              <span class="pill pill-grape">generate_icon</span>
+            </div>
+            <p class="text-cocoa-700 mt-1">生成 App icon、favicon、UI 元素，支援多尺寸與格式。</p>
+          </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-cocoa-700/10 shadow-soft min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-cocoa-900">必填參數</h3>
+              <span class="pill pill-required">Required</span>
+            </div>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start gap-2"><span class="pill font-mono">prompt</span><span class="text-cocoa-700">圖標描述，如 <code class="font-mono text-cocoa-900">"coffee cup logo"</code></span></li>
+            </ul>
+
+            <h3 class="font-display font-semibold text-cocoa-900 mt-6 mb-3">選填參數</h3>
+            <div class="overflow-x-auto -mx-2">
+              <table class="param-table">
+                <thead><tr><th>選項</th><th>類型</th><th>預設</th><th>可選值</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="pill">--sizes</span></td><td>逗號清單</td><td>—</td><td>16, 32, 64, 128, 256, 512, 1024</td></tr>
+                  <tr><td><span class="pill">--type</span></td><td>選項</td><td><code class="font-mono">app-icon</code></td><td>app-icon / favicon / ui-element</td></tr>
+                  <tr><td><span class="pill">--style</span></td><td>選項</td><td><code class="font-mono">modern</code></td><td>flat / skeuomorphic / minimal / modern</td></tr>
+                  <tr><td><span class="pill">--format</span></td><td>選項</td><td><code class="font-mono">png</code></td><td>png / jpeg</td></tr>
+                  <tr><td><span class="pill">--background</span></td><td>字串</td><td><code class="font-mono">transparent</code></td><td>transparent / white / black / 色彩名稱</td></tr>
+                  <tr><td><span class="pill">--corners</span></td><td>選項</td><td><code class="font-mono">rounded</code></td><td>rounded / sharp（僅 app-icon）</td></tr>
+                  <tr><td><span class="pill">--preview</span></td><td>旗標</td><td>—</td><td>自動開啟預覽</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/icon</span> <span class="str">"coffee cup logo"</span> <span class="flag">--sizes=</span><span class="str">"64,128,256"</span> <span class="flag">--type=</span><span class="str">"app-icon"</span> <span class="flag">--preview</span>
+<span class="cmd">/icon</span> <span class="str">"company logo"</span> <span class="flag">--type=</span><span class="str">"favicon"</span> <span class="flag">--sizes=</span><span class="str">"16,32,64"</span>
+<span class="cmd">/icon</span> <span class="str">"settings gear icon"</span> <span class="flag">--type=</span><span class="str">"ui-element"</span> <span class="flag">--style=</span><span class="str">"minimal"</span>
+<span class="cmd">/icon</span> <span class="str">"productivity app with checklist"</span> <span class="flag">--sizes=</span><span class="str">"64,128,256,512"</span> <span class="flag">--corners=</span><span class="str">"rounded"</span></pre>
+            </div>
+
+            <!-- visual mini preview -->
+            <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft">
+              <div class="text-xs font-mono text-cocoa-600 mb-3">Preview · sizes=64,128,256</div>
+              <div class="flex items-end gap-4">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-banana-300 to-banana-500 shadow-soft"></div>
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-banana-300 to-banana-500 shadow-soft"></div>
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-banana-300 to-banana-500 shadow-soft"></div>
+                <div class="ml-auto text-right font-mono text-xs text-cocoa-600">@ 1×, 2×, 4×</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- /pattern -->
+      <article id="pattern" class="scroll-mt-24">
+        <header class="flex items-start gap-4 mb-6">
+          <div class="w-14 h-14 shrink-0 rounded-2xl bg-pink-100 grid place-items-center shadow-soft">
+            <svg class="w-7 h-7 text-pink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-cocoa-900">/pattern</h2>
+              <span class="pill pill-grape">generate_pattern</span>
+            </div>
+            <p class="text-cocoa-700 mt-1">生成無縫重複圖案與紋理，適合背景、設計素材使用。</p>
+          </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-cocoa-700/10 shadow-soft min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-cocoa-900">必填參數</h3>
+              <span class="pill pill-required">Required</span>
+            </div>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start gap-2"><span class="pill font-mono">prompt</span><span class="text-cocoa-700">圖案描述，如 <code class="font-mono text-cocoa-900">"subtle geometric hexagons"</code></span></li>
+            </ul>
+
+            <h3 class="font-display font-semibold text-cocoa-900 mt-6 mb-3">選填參數</h3>
+            <div class="overflow-x-auto -mx-2">
+              <table class="param-table">
+                <thead><tr><th>選項</th><th>類型</th><th>預設</th><th>可選值</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="pill">--size="WxH"</span></td><td>字串</td><td><code class="font-mono">256x256</code></td><td>128x128 / 256x256 / 512x512</td></tr>
+                  <tr><td><span class="pill">--type</span></td><td>選項</td><td><code class="font-mono">seamless</code></td><td>seamless / texture / wallpaper</td></tr>
+                  <tr><td><span class="pill">--style</span></td><td>選項</td><td><code class="font-mono">abstract</code></td><td>geometric / organic / abstract / floral / tech</td></tr>
+                  <tr><td><span class="pill">--density</span></td><td>選項</td><td><code class="font-mono">medium</code></td><td>sparse / medium / dense</td></tr>
+                  <tr><td><span class="pill">--colors</span></td><td>選項</td><td><code class="font-mono">colorful</code></td><td>mono / duotone / colorful</td></tr>
+                  <tr><td><span class="pill">--repeat</span></td><td>選項</td><td><code class="font-mono">tile</code></td><td>tile / mirror</td></tr>
+                  <tr><td><span class="pill">--preview</span></td><td>旗標</td><td>—</td><td>自動開啟預覽</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/pattern</span> <span class="str">"subtle geometric hexagons"</span> <span class="flag">--type=</span><span class="str">"seamless"</span> <span class="flag">--colors=</span><span class="str">"duotone"</span> <span class="flag">--density=</span><span class="str">"sparse"</span>
+<span class="cmd">/pattern</span> <span class="str">"brushed metal surface"</span> <span class="flag">--type=</span><span class="str">"texture"</span> <span class="flag">--style=</span><span class="str">"tech"</span> <span class="flag">--colors=</span><span class="str">"mono"</span>
+<span class="cmd">/pattern</span> <span class="str">"floral design"</span> <span class="flag">--type=</span><span class="str">"wallpaper"</span> <span class="flag">--density=</span><span class="str">"sparse"</span>
+<span class="cmd">/pattern</span> <span class="str">"geometric triangles"</span> <span class="flag">--type=</span><span class="str">"seamless"</span> <span class="flag">--style=</span><span class="str">"geometric"</span> <span class="flag">--preview</span></pre>
+            </div>
+
+            <div class="rounded-2xl overflow-hidden border border-cocoa-700/10 shadow-soft">
+              <div class="grid grid-cols-8">
+                <!-- decorative pattern preview -->
+                <template id="pat-cell"></template>
+              </div>
+              <div class="grid grid-cols-8 aspect-[4/1]">
+                <div class="bg-banana-200"></div><div class="bg-banana-300"></div><div class="bg-banana-400"></div><div class="bg-cocoa-700"></div>
+                <div class="bg-banana-200"></div><div class="bg-banana-300"></div><div class="bg-banana-400"></div><div class="bg-cocoa-700"></div>
+                <div class="bg-banana-300"></div><div class="bg-banana-400"></div><div class="bg-cocoa-700"></div><div class="bg-banana-200"></div>
+                <div class="bg-banana-300"></div><div class="bg-banana-400"></div><div class="bg-cocoa-700"></div><div class="bg-banana-200"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- /story -->
+      <article id="story" class="scroll-mt-24">
+        <header class="flex items-start gap-4 mb-6">
+          <div class="w-14 h-14 shrink-0 rounded-2xl bg-orange-100 grid place-items-center shadow-soft">
+            <svg class="w-7 h-7 text-orange-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-cocoa-900">/story</h2>
+              <span class="pill pill-grape">generate_story</span>
+            </div>
+            <p class="text-cocoa-700 mt-1">生成一連串相關圖像，用於說故事或逐步呈現流程。</p>
+          </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-cocoa-700/10 shadow-soft min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-cocoa-900">必填參數</h3>
+              <span class="pill pill-required">Required</span>
+            </div>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start gap-2"><span class="pill font-mono">prompt</span><span class="text-cocoa-700">故事或流程描述，如 <code class="font-mono text-cocoa-900">"a seed growing into a tree"</code></span></li>
+            </ul>
+
+            <h3 class="font-display font-semibold text-cocoa-900 mt-6 mb-3">選填參數</h3>
+            <div class="overflow-x-auto -mx-2">
+              <table class="param-table">
+                <thead><tr><th>選項</th><th>類型</th><th>預設</th><th>可選值</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="pill">--steps=N</span></td><td>2–8</td><td><code class="font-mono">4</code></td><td>連續圖像數量</td></tr>
+                  <tr><td><span class="pill">--type</span></td><td>選項</td><td><code class="font-mono">story</code></td><td>story / process / tutorial / timeline</td></tr>
+                  <tr><td><span class="pill">--style</span></td><td>選項</td><td><code class="font-mono">consistent</code></td><td>consistent / evolving</td></tr>
+                  <tr><td><span class="pill">--layout</span></td><td>選項</td><td><code class="font-mono">separate</code></td><td>separate / grid / comic</td></tr>
+                  <tr><td><span class="pill">--transition</span></td><td>選項</td><td><code class="font-mono">smooth</code></td><td>smooth / dramatic / fade</td></tr>
+                  <tr><td><span class="pill">--format</span></td><td>選項</td><td><code class="font-mono">individual</code></td><td>storyboard / individual</td></tr>
+                  <tr><td><span class="pill">--preview</span></td><td>旗標</td><td>—</td><td>自動開啟預覽</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/story</span> <span class="str">"a seed growing into a tree"</span> <span class="flag">--steps=4 --type=</span><span class="str">"process"</span> <span class="flag">--preview</span>
+<span class="cmd">/story</span> <span class="str">"idea to launched product"</span> <span class="flag">--steps=5 --type=</span><span class="str">"process"</span> <span class="flag">--style=</span><span class="str">"consistent"</span>
+<span class="cmd">/story</span> <span class="str">"git workflow tutorial"</span> <span class="flag">--steps=6 --type=</span><span class="str">"tutorial"</span> <span class="flag">--layout=</span><span class="str">"comic"</span>
+<span class="cmd">/story</span> <span class="str">"company logo evolution"</span> <span class="flag">--steps=4 --type=</span><span class="str">"timeline"</span> <span class="flag">--transition=</span><span class="str">"smooth"</span></pre>
+            </div>
+
+            <!-- step timeline visual -->
+            <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft">
+              <div class="text-xs font-mono text-cocoa-600 mb-4">steps=4 · layout=separate</div>
+              <ol class="grid grid-cols-4 gap-3">
+                <li class="aspect-square rounded-xl bg-gradient-to-br from-orange-200 to-orange-300 grid place-items-center font-display font-bold text-orange-900 text-2xl">1</li>
+                <li class="aspect-square rounded-xl bg-gradient-to-br from-orange-300 to-orange-400 grid place-items-center font-display font-bold text-orange-900 text-2xl">2</li>
+                <li class="aspect-square rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 grid place-items-center font-display font-bold text-orange-900 text-2xl">3</li>
+                <li class="aspect-square rounded-xl bg-gradient-to-br from-amber-500 to-banana-400 grid place-items-center font-display font-bold text-cocoa-900 text-2xl">4</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- /diagram -->
+      <article id="diagram" class="scroll-mt-24">
+        <header class="flex items-start gap-4 mb-6">
+          <div class="w-14 h-14 shrink-0 rounded-2xl bg-emerald-100 grid place-items-center shadow-soft">
+            <svg class="w-7 h-7 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M14 21h7"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-display font-bold text-2xl sm:text-3xl text-cocoa-900">/diagram</h2>
+              <span class="pill pill-grape">generate_diagram</span>
+            </div>
+            <p class="text-cocoa-700 mt-1">從文字描述生成技術圖表、流程圖、架構圖。</p>
+          </div>
+        </header>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border border-cocoa-700/10 shadow-soft min-w-0">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-display font-semibold text-cocoa-900">必填參數</h3>
+              <span class="pill pill-required">Required</span>
+            </div>
+            <ul class="space-y-2 text-sm">
+              <li class="flex items-start gap-2"><span class="pill font-mono">prompt</span><span class="text-cocoa-700">圖表內容與結構描述，如 <code class="font-mono text-cocoa-900">"user login process"</code></span></li>
+            </ul>
+
+            <h3 class="font-display font-semibold text-cocoa-900 mt-6 mb-3">選填參數</h3>
+            <div class="overflow-x-auto -mx-2">
+              <table class="param-table">
+                <thead><tr><th>選項</th><th>類型</th><th>預設</th><th>可選值</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="pill">--type</span></td><td>選項</td><td><code class="font-mono">flowchart</code></td><td>flowchart / architecture / network / database / wireframe / mindmap / sequence</td></tr>
+                  <tr><td><span class="pill">--style</span></td><td>選項</td><td><code class="font-mono">professional</code></td><td>professional / clean / hand-drawn / technical</td></tr>
+                  <tr><td><span class="pill">--layout</span></td><td>選項</td><td><code class="font-mono">hierarchical</code></td><td>horizontal / vertical / hierarchical / circular</td></tr>
+                  <tr><td><span class="pill">--complexity</span></td><td>選項</td><td><code class="font-mono">detailed</code></td><td>simple / detailed / comprehensive</td></tr>
+                  <tr><td><span class="pill">--colors</span></td><td>選項</td><td><code class="font-mono">accent</code></td><td>mono / accent / categorical</td></tr>
+                  <tr><td><span class="pill">--annotations</span></td><td>選項</td><td><code class="font-mono">detailed</code></td><td>minimal / detailed</td></tr>
+                  <tr><td><span class="pill">--preview</span></td><td>旗標</td><td>—</td><td>自動開啟預覽</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="space-y-4 min-w-0">
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/diagram</span> <span class="str">"user login process"</span> <span class="flag">--type=</span><span class="str">"flowchart"</span> <span class="flag">--style=</span><span class="str">"professional"</span> <span class="flag">--preview</span>
+<span class="cmd">/diagram</span> <span class="str">"CI/CD pipeline with testing stages"</span> <span class="flag">--type=</span><span class="str">"flowchart"</span> <span class="flag">--complexity=</span><span class="str">"detailed"</span>
+<span class="cmd">/diagram</span> <span class="str">"chat application architecture"</span> <span class="flag">--type=</span><span class="str">"architecture"</span> <span class="flag">--style=</span><span class="str">"technical"</span>
+<span class="cmd">/diagram</span> <span class="str">"REST API authentication flow"</span> <span class="flag">--type=</span><span class="str">"sequence"</span> <span class="flag">--layout=</span><span class="str">"vertical"</span>
+<span class="cmd">/diagram</span> <span class="str">"social media database schema"</span> <span class="flag">--type=</span><span class="str">"database"</span> <span class="flag">--annotations=</span><span class="str">"detailed"</span></pre>
+            </div>
+
+            <!-- simple diagram preview -->
+            <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft">
+              <div class="text-xs font-mono text-cocoa-600 mb-4">type=sequence · layout=vertical</div>
+              <svg viewBox="0 0 300 140" class="w-full" aria-hidden="true">
+                <rect x="10"  y="10" width="70" height="26" rx="6" fill="#FDE047" stroke="#A16207"/>
+                <rect x="220" y="10" width="70" height="26" rx="6" fill="#A78BFA" stroke="#6D28D9"/>
+                <text x="45"  y="27" text-anchor="middle" font-family="Fira Code" font-size="11" fill="#5B1D0A">Client</text>
+                <text x="255" y="27" text-anchor="middle" font-family="Fira Code" font-size="11" fill="#fff">Server</text>
+                <line x1="45"  y1="40" x2="45"  y2="130" stroke="#A16207" stroke-dasharray="3 3"/>
+                <line x1="255" y1="40" x2="255" y2="130" stroke="#6D28D9" stroke-dasharray="3 3"/>
+                <path d="M45 60 L255 60" stroke="#5B1D0A" stroke-width="1.5" marker-end="url(#ah)"/>
+                <path d="M255 90 L45 90" stroke="#5B1D0A" stroke-width="1.5" marker-end="url(#ah)"/>
+                <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5B1D0A"/></marker></defs>
+                <text x="150" y="56" text-anchor="middle" font-family="Fira Code" font-size="10" fill="#5B1D0A">POST /auth</text>
+                <text x="150" y="86" text-anchor="middle" font-family="Fira Code" font-size="10" fill="#5B1D0A">200 OK + JWT</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- /edit & /restore combined -->
+      <article id="edit-restore" class="scroll-mt-24">
+        <header class="mb-8">
+          <span class="font-mono text-xs tracking-wider text-cocoa-600 uppercase">// Image Operations</span>
+          <h2 class="font-display font-bold text-3xl text-cocoa-900 mt-2">處理既有圖像</h2>
+          <p class="text-cocoa-700 mt-2">以自然語言對既有檔案下達編輯或修復指示。格式：<code class="font-mono bg-banana-200 px-2 py-0.5 rounded">/command filename "instructions" [--preview]</code></p>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- /edit -->
+          <div class="bg-white rounded-3xl p-6 border border-cocoa-700/10 shadow-soft">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 grid place-items-center">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-xl text-cocoa-900">/edit</h3>
+                <span class="pill pill-grape">edit_image</span>
+              </div>
+            </div>
+            <p class="text-sm text-cocoa-700">依文字指示編輯既有圖像。</p>
+
+            <div class="mt-4 space-y-2 text-sm">
+              <div><span class="pill pill-required">必填</span> <span class="ml-1 font-mono text-cocoa-800">filename</span> · <span class="font-mono text-cocoa-800">prompt</span></div>
+              <div><span class="pill">選填</span> <span class="ml-1 font-mono text-cocoa-800">--preview</span></div>
+            </div>
+
+<pre class="codeblock mt-4"><span class="cmd">/edit</span> <span class="arg">my_photo.png</span> <span class="str">"add sunglasses to the person"</span>
+<span class="cmd">/edit</span> <span class="arg">portrait.jpg</span> <span class="str">"change background to a beach scene"</span> <span class="flag">--preview</span></pre>
+          </div>
+
+          <!-- /restore -->
+          <div class="bg-white rounded-3xl p-6 border border-cocoa-700/10 shadow-soft">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 grid place-items-center">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-xl text-cocoa-900">/restore</h3>
+                <span class="pill pill-grape">restore_image</span>
+              </div>
+            </div>
+            <p class="text-sm text-cocoa-700">修復或增強既有圖像（例如去除刮痕、補色、提升清晰度）。</p>
+
+            <div class="mt-4 space-y-2 text-sm">
+              <div><span class="pill pill-required">必填</span> <span class="ml-1 font-mono text-cocoa-800">filename</span> · <span class="font-mono text-cocoa-800">prompt</span></div>
+              <div><span class="pill">選填</span> <span class="ml-1 font-mono text-cocoa-800">--preview</span></div>
+            </div>
+
+<pre class="codeblock mt-4"><span class="cmd">/restore</span> <span class="arg">old_family_photo.jpg</span> <span class="str">"remove scratches and improve clarity"</span>
+<span class="cmd">/restore</span> <span class="arg">damaged_photo.png</span> <span class="str">"enhance colors and fix tears"</span> <span class="flag">--preview</span></pre>
+          </div>
+        </div>
+      </article>
+
+      <!-- /nanobanana -->
+      <article id="nanobanana" class="scroll-mt-24">
+        <div class="relative bg-gradient-to-br from-banana-300 via-banana-400 to-banana-500 rounded-[2rem] p-8 sm:p-10 overflow-hidden shadow-pop">
+          <div class="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-white/20 blur-2xl"></div>
+          <div class="absolute -bottom-16 -left-10 w-72 h-72 rounded-full bg-cocoa-700/10 blur-3xl"></div>
+
+          <div class="relative grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] gap-8 items-center">
+            <div>
+              <span class="inline-flex items-center gap-2 bg-cocoa-900 text-banana-200 text-xs font-mono font-semibold px-3 py-1.5 rounded-full">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 5.6L20 9l-4.5 3.9 1.4 5.6L12 15.8 7.1 18.5l1.4-5.6L4 9l5.6-1.4z"/></svg>
+                AI Auto-routing
+              </span>
+              <h2 class="font-display font-bold text-4xl sm:text-5xl mt-4 text-cocoa-900 leading-tight">/nanobanana</h2>
+              <p class="mt-3 text-cocoa-800 text-lg max-w-xl">
+                以自然語言描述需求，由模型自動判讀並路由到最適合的 MCP tool。不需手動指定旗標，所有調整透過自然語言表達即可。
+              </p>
+
+              <div class="mt-6 flex flex-wrap gap-2">
+                <span class="pill">generate_image</span>
+                <span class="pill">edit_image</span>
+                <span class="pill">restore_image</span>
+                <span class="pill">generate_icon</span>
+                <span class="pill">generate_pattern</span>
+                <span class="pill">generate_story</span>
+                <span class="pill">generate_diagram</span>
+              </div>
+            </div>
+
+            <div class="bg-cocoa-900 rounded-3xl p-5 shadow-pop">
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-display text-banana-300 text-sm font-semibold">範例</span>
+                <button class="copy-btn font-mono text-xs bg-banana-300/10 text-banana-200 px-2.5 py-1 rounded-md cursor-pointer border border-banana-300/20">Copy</button>
+              </div>
+<pre class="codeblock"><span class="cmd">/nanobanana</span> <span class="str">create a logo for my tech startup</span>
+<span class="cmd">/nanobanana</span> <span class="str">I need 5 different versions of a cat
+  illustration in various art styles</span>
+<span class="cmd">/nanobanana</span> <span class="str">fix the lighting in sunset.jpg and
+  make it more vibrant</span></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Common info -->
+      <article id="common" class="scroll-mt-24">
+        <header class="mb-8">
+          <span class="font-mono text-xs tracking-wider text-cocoa-600 uppercase">// Global</span>
+          <h2 class="font-display font-bold text-3xl text-cocoa-900 mt-2">共通說明</h2>
+          <p class="text-cocoa-700 mt-2">所有指令共用的輸出、旗標、驗證與模型設定。</p>
+        </header>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft card-lift">
+            <div class="w-10 h-10 rounded-xl bg-banana-200 text-cocoa-800 grid place-items-center mb-3">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+            </div>
+            <div class="font-display font-semibold text-cocoa-900">輸出目錄</div>
+            <p class="mt-1 text-sm text-cocoa-700">所有生成的圖像儲存於：</p>
+            <code class="mt-2 block font-mono text-xs text-cocoa-900 bg-banana-100 border border-banana-300 px-2 py-1.5 rounded-lg break-all">./nanobanana-output/</code>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft card-lift">
+            <div class="w-10 h-10 rounded-xl bg-grape-500/15 text-grape-700 grid place-items-center mb-3">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M12 8v4l2.5 2.5"/></svg>
+            </div>
+            <div class="font-display font-semibold text-cocoa-900">通用旗標</div>
+            <p class="mt-1 text-sm text-cocoa-700">幾乎所有指令都支援：</p>
+            <code class="mt-2 inline-block font-mono text-xs text-cocoa-900 bg-grape-500/10 border border-grape-500/30 px-2 py-1 rounded-lg">--preview</code>
+            <p class="mt-1 text-xs text-cocoa-600">產圖後自動開啟預設圖檢視器。</p>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft card-lift">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 grid place-items-center mb-3">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div class="font-display font-semibold text-cocoa-900">API 金鑰</div>
+            <p class="mt-1 text-sm text-cocoa-700">環境變數優先順序：</p>
+            <ol class="mt-2 space-y-1 text-xs font-mono text-cocoa-800">
+              <li>1. NANOBANANA_API_KEY</li>
+              <li>2. NANOBANANA_GEMINI_API_KEY</li>
+              <li>3. NANOBANANA_GOOGLE_API_KEY</li>
+              <li>4. GEMINI_API_KEY</li>
+              <li>5. GOOGLE_API_KEY</li>
+            </ol>
+          </div>
+
+          <div class="bg-white rounded-2xl p-5 border border-cocoa-700/10 shadow-soft card-lift">
+            <div class="w-10 h-10 rounded-xl bg-pink-100 text-pink-700 grid place-items-center mb-3">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4zM4 12h10v4H4zM4 20h6"/></svg>
+            </div>
+            <div class="font-display font-semibold text-cocoa-900">模型覆寫</div>
+            <p class="mt-1 text-sm text-cocoa-700">可透過環境變數覆寫預設模型：</p>
+            <code class="mt-2 block font-mono text-[11px] text-cocoa-900 bg-banana-100 border border-banana-300 px-2 py-1.5 rounded-lg break-all">NANOBANANA_MODEL</code>
+            <p class="mt-1 text-xs text-cocoa-600">預設：gemini-3.1-flash-image-preview</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative border-t border-cocoa-700/10 bg-gradient-to-b from-cream to-banana-100">
+    <div class="max-w-5xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-banana-300 to-banana-400">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-cocoa-800" fill="currentColor" aria-hidden="true"><path d="M5 4c-.6 0-1 .5-.9 1.1.8 7 5.4 12.6 12.5 13.8 1.3.2 2.5-.7 2.7-2 .1-.9-.4-1.8-1.3-2.1-5.6-1.8-9.3-5.8-10.4-10.4C7.4 4.5 6.9 4 6.3 4H5z"/></svg>
+        </span>
+        <div>
+          <div class="font-display font-semibold text-cocoa-900">Nano Banana</div>
+          <div class="text-xs text-cocoa-600">Gemini CLI Extension · Commands Reference</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-sm text-cocoa-700">
+        <a href="#top" class="hover:text-grape-700 cursor-pointer transition-colors">回頂端</a>
+        <span class="w-1 h-1 bg-cocoa-700/30 rounded-full"></span>
+        <span class="font-mono text-xs text-cocoa-600">© 2026 Google LLC · Apache-2.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Copy code blocks
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pre = btn.closest('.rounded-3xl, .bg-cocoa-900').querySelector('pre.codeblock');
+        if (!pre) return;
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.classList.remove('copied');
+          }, 1500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
